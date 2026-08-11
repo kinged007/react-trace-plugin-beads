@@ -1,6 +1,5 @@
 import { useWidgetPortalContainer } from '@react-trace/core'
 import { Combobox, Popover, Tooltip } from '@react-trace/ui-components'
-import type { ReactNode } from 'react'
 import { useRef, useState } from 'react'
 
 import { priorityLabel } from '../types'
