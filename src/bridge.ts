@@ -2,6 +2,26 @@ import type { BeadIssue, BeadOptions, CreateBeadInput } from './types'
 
 export const DEFAULT_BRIDGE_URL = 'http://localhost:4790'
 
+/**
+ * Resolves the bridge base URL:
+ * 1. Explicit `bridgeUrl` option wins.
+ * 2. When the app is served through a port-forwarding proxy (e.g. Coder's
+ *    `<port>--<app>--<user>.example.com` hostnames), the bridge is reachable
+ *    on the same host with the port swapped to 4790.
+ * 3. Otherwise fall back to localhost.
+ */
+export function resolveBridgeUrl(configured?: string): string {
+  if (configured) return configured.replace(/\/$/, '')
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname
+    const match = host.match(/^(\d+)--(.+)$/)
+    if (match) {
+      return `${window.location.protocol}//4790--${match[2]}`
+    }
+  }
+  return DEFAULT_BRIDGE_URL
+}
+
 export class BridgeError extends Error {
   constructor(
     message: string,

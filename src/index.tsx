@@ -4,6 +4,7 @@ import { DropdownMenu, ToolbarButton, Tooltip } from '@react-trace/ui-components
 import { useRef, useState } from 'react'
 
 import { setBridgeUrl, useCommentBeadState, useCommentEntries } from './store'
+import { resolveBridgeUrl } from './bridge'
 import type { BeadsPluginOptions } from './types'
 import { BeadsActionPanel } from './ui/ActionPanel'
 import { CommentEditorOverlay } from './ui/CommentEditor'
@@ -128,7 +129,7 @@ function BeadsActionPanelWithContext() {
  * <Trace root={import.meta.env.VITE_ROOT} plugins={[BeadsPlugin()]} />
  */
 export function BeadsPlugin(options?: BeadsPluginOptions): TracePlugin {
-  setBridgeUrl(options?.bridgeUrl)
+  setBridgeUrl(resolveBridgeUrl(options?.bridgeUrl))
   return {
     name: 'beads',
     toolbar: BeadsToolbar,

@@ -57,7 +57,7 @@ Run it alongside your dev server (add a `"beads": "react-trace-beads --directory
 
 | Option | Default | Description |
 | ------ | ------- | ----------- |
-| `bridgeUrl` | `http://localhost:4790` | Bridge base URL |
+| `bridgeUrl` | auto | Bridge base URL. Resolution order: explicit `bridgeUrl` option → when the app is served through a port-forwarding proxy (Coder-style `5175--app--user.example.com` hostnames, the bridge host is derived by swapping the port to 4790) → `http://localhost:4790` |
 
 ## How created beads look
 
