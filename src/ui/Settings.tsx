@@ -40,7 +40,13 @@ export function BeadsSettings() {
   const priorities = options?.priorities ?? ['P0', 'P1', 'P2', 'P3', 'P4']
   const epics = options?.epics ?? []
 
-  const statusOptions = statuses.map(statusOption)
+  // Default status is a creation-time setting: only backlog/ready states make
+  // sense here; the rest are lifecycle states.
+  const defaultStatusNames = ['open', 'deferred']
+  const statusOptions = statuses
+    .filter((s) => defaultStatusNames.includes(s.name))
+    .map(statusOption)
+  const statusOptionsForDisplay = statusOptions.length > 0 ? statusOptions : statuses.map(statusOption)
   const priorityOptions: ComboOption[] = priorities.map((p) => ({
     value: p,
     label: `${p} — ${priorityLabel(p)}`,
@@ -109,19 +115,9 @@ export function BeadsSettings() {
         <label style={LABEL_STYLE}>Default status</label>
         <ComboSelect
           value={settings.status}
-          options={statusOptions}
+          options={statusOptionsForDisplay}
           onChange={(v) => setSettings({ status: v })}
-          style={{
-            background: '#0f0f11',
-            border: '1px solid #27272a',
-            borderRadius: 4,
-            color: '#d4d4d8',
-            fontSize: 12,
-            padding: '4px 8px',
-            width: '100%',
-            outline: 'none',
-            fontFamily: 'system-ui, sans-serif',
-          }}
+          style={{ fontSize: 12 }}
         />
         {error && (
           <span style={{ fontSize: 10, color: '#f87171', fontFamily: 'system-ui, sans-serif' }}>
@@ -136,17 +132,7 @@ export function BeadsSettings() {
           value={settings.priority}
           options={priorityOptions}
           onChange={(v) => setSettings({ priority: v })}
-          style={{
-            background: '#0f0f11',
-            border: '1px solid #27272a',
-            borderRadius: 4,
-            color: '#d4d4d8',
-            fontSize: 12,
-            padding: '4px 8px',
-            width: '100%',
-            outline: 'none',
-            fontFamily: 'system-ui, sans-serif',
-          }}
+          style={{ fontSize: 12 }}
         />
       </div>
 
@@ -156,17 +142,7 @@ export function BeadsSettings() {
           value={settings.epic}
           options={epicOptions}
           onChange={(v) => setSettings({ epic: v })}
-          style={{
-            background: '#0f0f11',
-            border: '1px solid #27272a',
-            borderRadius: 4,
-            color: '#d4d4d8',
-            fontSize: 12,
-            padding: '4px 8px',
-            width: '100%',
-            outline: 'none',
-            fontFamily: 'system-ui, sans-serif',
-          }}
+          style={{ fontSize: 12 }}
         />
       </div>
     </div>

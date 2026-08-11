@@ -166,9 +166,8 @@ export interface ComboOption {
 }
 
 /**
- * Combobox-based dropdown (the official react-trace settings plugins use
- * Combobox — base-ui Select popups are unclickable inside the settings
- * portal in some core versions).
+ * Select-based dropdown matching the official react-trace settings plugins
+ * (open-editor etc.): styled button trigger with chevron + item list.
  */
 export function ComboSelect({
   value,
@@ -184,69 +183,64 @@ export function ComboSelect({
   style?: React.CSSProperties
 }) {
   const portalContainer = useWidgetPortalContainer()
-  const anchorRef = useRef<HTMLDivElement>(null)
-  const [open, setOpen] = useState(false)
-  const current = options.find((o) => o.value === value) ?? null
   const items = options.map((o) => ({
     value: o.value,
     label: o.label,
     searchLabel: o.searchLabel ?? '',
     hint: o.hint ?? '',
   }))
+  const current = options.find((o) => o.value === value)
 
   return (
-    <Combobox.Root
-      value={current}
-      onValueChange={(option) => {
-        if (option) onChange(option.value)
-      }}
+    <Select.Root
+      value={value}
       items={items}
-      open={open}
-      onOpenChange={setOpen}
+      onValueChange={(v) => {
+        if (v) onChange(v)
+      }}
       disabled={disabled}
     >
-      <div ref={anchorRef} style={{ width: '100%', ...style }}>
-        <Combobox.Trigger
-          onClick={(e) => e.stopPropagation()}
-          onKeyDown={(e) => e.stopPropagation()}
-        >
-          <Combobox.Input />
-        </Combobox.Trigger>
-      </div>
+      <Select.Trigger
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
+        style={style}
+      >
+        <Select.Value>
+          {(v) => current?.label ?? v ?? ''}
+        </Select.Value>
+      </Select.Trigger>
 
-      <Combobox.Portal container={portalContainer}>
-        <Combobox.Positioner
-          style={{ zIndex: 100000000, pointerEvents: 'auto' }}
-          anchor={anchorRef}
-        >
-          <Combobox.Popup>
-            <Combobox.Empty>No options</Combobox.Empty>
-            <Combobox.List
+      <Select.Portal container={portalContainer}>
+        <Select.Positioner style={{ zIndex: 100000000, pointerEvents: 'auto' }}>
+          <Select.Popup>
+            <Select.List
               style={{
                 overscrollBehavior: 'contain',
                 maxHeight: 240,
                 overflowY: 'auto',
               }}
             >
-              {(option: (typeof items)[number]) => (
-                <Combobox.Item
+              {items.map((option) => (
+                <Select.Item
                   key={option.value}
-                  value={option}
+                  value={option.value}
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <span style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                    <span>{option.label}</span>
-                    {option.hint && (
-                      <span style={{ fontSize: 10, color: '#71717a' }}>{option.hint}</span>
-                    )}
-                  </span>
-                </Combobox.Item>
-              )}
-            </Combobox.List>
-          </Combobox.Popup>
-        </Combobox.Positioner>
-      </Combobox.Portal>
-    </Combobox.Root>
+                  <Select.ItemText>
+                    <span style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                      <span>{option.label}</span>
+                      {option.hint && (
+                        <span style={{ fontSize: 10, color: '#71717a' }}>{option.hint}</span>
+                      )}
+                    </span>
+                  </Select.ItemText>
+                </Select.Item>
+              ))}
+            </Select.List>
+          </Select.Popup>
+        </Select.Positioner>
+      </Select.Portal>
+    </Select.Root>
   )
 }
 
@@ -279,8 +273,8 @@ export function PrioritySelect({
       style={{
         fontSize: 11,
         padding: '2px 6px',
-        minWidth: showLabels ? 96 : 44,
-        width: showLabels ? 96 : 44,
+        minWidth: showLabels ? 110 : 44,
+        width: showLabels ? 110 : 44,
         fontFamily: 'system-ui, sans-serif',
       }}
     />
