@@ -1,5 +1,4 @@
-import { useWidgetPortalContainer } from '@react-trace/core'
-import { Button, Select } from '@react-trace/ui-components'
+import { Button } from '@react-trace/ui-components'
 import { useState } from 'react'
 
 import {
@@ -8,6 +7,9 @@ import {
   useBridgeHealth,
   useSetBeadsSettings,
 } from '../store'
+import type { BeadStatusOption } from '../types'
+import { priorityLabel } from '../types'
+import { ComboSelect, type ComboOption } from './BeadControls'
 import { BridgeStatusDot } from './CommentsMenu'
 
 const LABEL_STYLE: React.CSSProperties = {
@@ -18,8 +20,19 @@ const LABEL_STYLE: React.CSSProperties = {
   marginBottom: 4,
 }
 
+function statusOption(s: BeadStatusOption): ComboOption {
+  return {
+    value: s.name,
+    label: (
+      <span title={s.description}>
+        {s.icon} {s.name}
+      </span>
+    ),
+    searchLabel: `${s.name} ${s.description ?? ''}`,
+  }
+}
+
 export function BeadsSettings() {
-  const portalContainer = useWidgetPortalContainer()
   const settings = useBeadsSettings()
   const setSettings = useSetBeadsSettings()
   const { options, loading, error, refresh } = useBeadOptions()
@@ -29,6 +42,17 @@ export function BeadsSettings() {
   const statuses = options?.statuses ?? []
   const priorities = options?.priorities ?? ['P0', 'P1', 'P2', 'P3', 'P4']
   const epics = options?.epics ?? []
+
+  const statusOptions = statuses.map(statusOption)
+  const priorityOptions: ComboOption[] = priorities.map((p) => ({
+    value: p,
+    label: `${p} — ${priorityLabel(p)}`,
+    searchLabel: p,
+  }))
+  const epicOptions: ComboOption[] = [
+    { value: '', label: 'None' },
+    ...epics.map((e) => ({ value: e.id, label: `${e.id} — ${e.title}`, searchLabel: `${e.id} ${e.title}` })),
+  ]
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12, minWidth: 260 }}>
@@ -86,34 +110,23 @@ export function BeadsSettings() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         <label style={LABEL_STYLE}>Default status</label>
-        <Select.Root
+        <ComboSelect
           value={settings.status}
-          onValueChange={(v) => v && setSettings({ status: v })}
-        >
-          <Select.Trigger>
-            <Select.Value placeholder="open">
-              {(value) =>
-                value ? `${statuses.find((s) => s.name === value)?.icon ?? ''} ${value}` : 'open'
-              }
-            </Select.Value>
-          </Select.Trigger>
-          <Select.Portal container={portalContainer}>
-            <Select.Positioner style={{ zIndex: 9999999, pointerEvents: 'auto' }}>
-              <Select.Popup>
-                <Select.List>
-                  {statuses.map((s) => (
-                    <Select.Item key={s.name} value={s.name}>
-                      <Select.ItemText>
-                        {s.icon} {s.name}
-                        {s.description ? ` — ${s.description}` : ''}
-                      </Select.ItemText>
-                    </Select.Item>
-                  ))}
-                </Select.List>
-              </Select.Popup>
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>
+          options={statusOptions}
+          onChange={(v) => setSettings({ status: v })}
+          placeholder="open"
+          style={{
+            background: '#0f0f11',
+            border: '1px solid #27272a',
+            borderRadius: 4,
+            color: '#d4d4d8',
+            fontSize: 12,
+            padding: '4px 8px',
+            width: '100%',
+            outline: 'none',
+            fontFamily: 'system-ui, sans-serif',
+          }}
+        />
         {error && (
           <span style={{ fontSize: 10, color: '#f87171', fontFamily: 'system-ui, sans-serif' }}>
             {error}
@@ -123,61 +136,44 @@ export function BeadsSettings() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         <label style={LABEL_STYLE}>Default priority</label>
-        <Select.Root
+        <ComboSelect
           value={settings.priority}
-          onValueChange={(v) => v && setSettings({ priority: v })}
-        >
-          <Select.Trigger>
-            <Select.Value placeholder="P2" />
-          </Select.Trigger>
-          <Select.Portal container={portalContainer}>
-            <Select.Positioner style={{ zIndex: 9999999, pointerEvents: 'auto' }}>
-              <Select.Popup>
-                <Select.List>
-                  {priorities.map((p) => (
-                    <Select.Item key={p} value={p}>
-                      <Select.ItemText>{p}</Select.ItemText>
-                    </Select.Item>
-                  ))}
-                </Select.List>
-              </Select.Popup>
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>
+          options={priorityOptions}
+          onChange={(v) => setSettings({ priority: v })}
+          placeholder="P2"
+          style={{
+            background: '#0f0f11',
+            border: '1px solid #27272a',
+            borderRadius: 4,
+            color: '#d4d4d8',
+            fontSize: 12,
+            padding: '4px 8px',
+            width: '100%',
+            outline: 'none',
+            fontFamily: 'system-ui, sans-serif',
+          }}
+        />
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         <label style={LABEL_STYLE}>Epic (parent bead)</label>
-        <Select.Root
+        <ComboSelect
           value={settings.epic}
-          onValueChange={(v) => setSettings({ epic: v ?? '' })}
-        >
-          <Select.Trigger>
-            <Select.Value placeholder="None">
-              {(value) =>
-                value ? `${value} — ${epics.find((e) => e.id === value)?.title ?? ''}` : 'None'
-              }
-            </Select.Value>
-          </Select.Trigger>
-          <Select.Portal container={portalContainer}>
-            <Select.Positioner style={{ zIndex: 9999999, pointerEvents: 'auto' }}>
-              <Select.Popup>
-                <Select.List>
-                  <Select.Item value="">
-                    <Select.ItemText>None</Select.ItemText>
-                  </Select.Item>
-                  {epics.map((e) => (
-                    <Select.Item key={e.id} value={e.id}>
-                      <Select.ItemText>
-                        {e.id} — {e.title}
-                      </Select.ItemText>
-                    </Select.Item>
-                  ))}
-                </Select.List>
-              </Select.Popup>
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>
+          options={epicOptions}
+          onChange={(v) => setSettings({ epic: v })}
+          placeholder="None"
+          style={{
+            background: '#0f0f11',
+            border: '1px solid #27272a',
+            borderRadius: 4,
+            color: '#d4d4d8',
+            fontSize: 12,
+            padding: '4px 8px',
+            width: '100%',
+            outline: 'none',
+            fontFamily: 'system-ui, sans-serif',
+          }}
+        />
       </div>
     </div>
   )

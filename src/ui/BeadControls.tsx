@@ -1,6 +1,9 @@
 import { useWidgetPortalContainer } from '@react-trace/core'
-import { Popover, Select, Tooltip } from '@react-trace/ui-components'
+import { Combobox, Popover, Tooltip } from '@react-trace/ui-components'
+import type { ReactNode } from 'react'
 import { useRef, useState } from 'react'
+
+import { priorityLabel } from '../types'
 
 export function CheckIcon({ size = 12 }: { size?: number }) {
   return (
@@ -156,43 +159,125 @@ export function LabelPicker({
   )
 }
 
+export interface ComboOption {
+  value: string
+  label: ReactNode
+  searchLabel?: string
+}
+
+/**
+ * Combobox-based dropdown (the official react-trace settings plugins use
+ * Combobox — base-ui Select popups are unclickable inside the settings
+ * portal in some core versions).
+ */
+export function ComboSelect({
+  value,
+  options,
+  onChange,
+  disabled,
+  placeholder,
+  style,
+}: {
+  value: string
+  options: ComboOption[]
+  onChange(v: string): void
+  disabled?: boolean
+  placeholder?: string
+  style?: React.CSSProperties
+}) {
+  const portalContainer = useWidgetPortalContainer()
+  const anchorRef = useRef<HTMLDivElement>(null)
+  const [open, setOpen] = useState(false)
+  const current = options.find((o) => o.value === value) ?? null
+  const items = options.map((o) => ({ value: o.value, label: o.label, searchLabel: o.searchLabel ?? '' }))
+
+  return (
+    <Combobox.Root
+      value={current}
+      onValueChange={(option) => {
+        if (option) onChange(option.value)
+      }}
+      items={items}
+      open={open}
+      onOpenChange={setOpen}
+      disabled={disabled}
+    >
+      <div ref={anchorRef}>
+        <Combobox.Trigger
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
+          style={{ width: '100%' }}
+        >
+          <Combobox.Input placeholder={placeholder} style={style} />
+        </Combobox.Trigger>
+      </div>
+
+      <Combobox.Portal container={portalContainer}>
+        <Combobox.Positioner
+          style={{ zIndex: 100000000, pointerEvents: 'auto' }}
+          anchor={anchorRef}
+        >
+          <Combobox.Popup>
+            <Combobox.Empty>No options</Combobox.Empty>
+            <Combobox.List
+              style={{
+                overscrollBehavior: 'contain',
+                maxHeight: 240,
+                overflowY: 'auto',
+              }}
+            >
+              {(option: (typeof items)[number]) => (
+                <Combobox.Item
+                  key={option.value}
+                  value={option}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <span>{option.label}</span>
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Popup>
+        </Combobox.Positioner>
+      </Combobox.Portal>
+    </Combobox.Root>
+  )
+}
+
 export function PrioritySelect({
   value,
   onChange,
   disabled,
   priorities,
+  showLabels = true,
 }: {
   value: string
   onChange(v: string): void
   disabled?: boolean
   priorities: string[]
+  showLabels?: boolean
 }) {
-  const portalContainer = useWidgetPortalContainer()
   const items = priorities.length > 0 ? priorities : ['P0', 'P1', 'P2', 'P3', 'P4']
+  const options: ComboOption[] = items.map((p) => ({
+    value: p,
+    label: showLabels ? `${p} — ${priorityLabel(p)}` : p,
+    searchLabel: p,
+  }))
 
   return (
-    <Select.Root value={value} onValueChange={(v) => v && onChange(v)} disabled={disabled}>
-      <Select.Trigger
-        onClick={(e) => e.stopPropagation()}
-        onKeyDown={(e) => e.stopPropagation()}
-        style={{ padding: '2px 6px', fontSize: 11, minWidth: 44, width: 'auto' }}
-      >
-        <Select.Value placeholder="P2" />
-      </Select.Trigger>
-      <Select.Portal container={portalContainer}>
-        <Select.Positioner style={{ zIndex: 9999999, pointerEvents: 'auto' }}>
-          <Select.Popup>
-            <Select.List>
-              {items.map((p) => (
-                <Select.Item key={p} value={p}>
-                  <Select.ItemText>{p}</Select.ItemText>
-                </Select.Item>
-              ))}
-            </Select.List>
-          </Select.Popup>
-        </Select.Positioner>
-      </Select.Portal>
-    </Select.Root>
+    <ComboSelect
+      value={value}
+      options={options}
+      onChange={onChange}
+      disabled={disabled}
+      placeholder="P2"
+      style={{
+        fontSize: 11,
+        padding: '2px 6px',
+        minWidth: showLabels ? 96 : 44,
+        width: showLabels ? 96 : 44,
+        fontFamily: 'system-ui, sans-serif',
+      }}
+    />
   )
 }
 

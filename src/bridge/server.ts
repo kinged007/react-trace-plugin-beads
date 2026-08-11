@@ -235,15 +235,15 @@ async function route(req: IncomingMessage, res: ServerResponse, opts: Options): 
     return
   }
 
-  if (!authorized(req, opts)) {
-    sendJson(res, 401, { error: 'unauthorized: set BEADS_BRIDGE_TOKEN / --token on the bridge and pass bridgeToken to BeadsPlugin' })
-    return
-  }
-
   const directory = dirFromRequest(url, opts)
 
   if (method === 'GET' && path === '/api/health') {
     sendJson(res, 200, await handleHealth(opts, directory))
+    return
+  }
+
+  if (!authorized(req, opts)) {
+    sendJson(res, 401, { error: 'unauthorized: set BEADS_BRIDGE_TOKEN / --token on the bridge and pass bridgeToken to BeadsPlugin' })
     return
   }
 

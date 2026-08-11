@@ -57,3 +57,15 @@ export interface BeadIssue {
   priority: number
   labels?: string[]
 }
+
+export const PRIORITY_LABELS: Record<string, string> = {
+  P0: 'Critical',
+  P1: 'High',
+  P2: 'Medium',
+  P3: 'Low',
+  P4: 'Backlog',
+}
+
+export function priorityLabel(priority: string): string {
+  return PRIORITY_LABELS[priority] ?? priority
+}
