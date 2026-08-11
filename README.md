@@ -57,7 +57,34 @@ Run it alongside your dev server (add a `"beads": "react-trace-beads --directory
 
 | Option | Default | Description |
 | ------ | ------- | ----------- |
-| `bridgeUrl` | auto | Bridge base URL. Resolution order: explicit `bridgeUrl` option → when the app is served through a port-forwarding proxy (Coder-style `5175--app--user.example.com` hostnames, the bridge host is derived by swapping the port to 4790) → `http://localhost:4790` |
+| `bridgeUrl` | auto | Bridge base URL — absolute (`http://localhost:4790`) or same-origin path (`/beads-api` when proxied by the dev server). Resolution order: explicit option → port-forwarding proxy hostname (Coder-style `5175--app--user.example.com`, derived by swapping the port to 4790) → `http://localhost:4790` |
+| `bridgeToken` | — | Bearer token for the bridge when it runs with `--token` / `BEADS_BRIDGE_TOKEN` (needed when the bridge port is exposed publicly) |
+
+### 3. Bridge security
+
+The bridge only ever runs fixed `bd` subcommands (create/update/delete/statuses/list — no arbitrary shell), but if the port is reachable by others it can still be abused to spam or delete beads. Keep it on `127.0.0.1` (default) — for remote/proxied setups prefer **same-origin proxying** so the port is never exposed:
+
+```ts
+// vite.config.ts
+proxy: {
+  '/beads-api': {
+    target: 'http://localhost:4790',
+    changeOrigin: true,
+    rewrite: (p) => p.replace(/^\/beads-api/, ''),
+  },
+}
+// main.tsx
+<Trace ... plugins={[..., BeadsPlugin({ bridgeUrl: '/beads-api' })]} />
+```
+
+If you must expose the port publicly, protect it with a token:
+
+```bash
+BEADS_BRIDGE_TOKEN=$(openssl rand -hex 32) react-trace-beads --host 0.0.0.0
+# plugin: BeadsPlugin({ bridgeToken: '<same token>' })
+```
+
+`/api/health` stays unauthenticated (safe); every other route returns 401 without a valid token. Requests to other origins are blocked by CORS. Only bind `0.0.0.0` if you really need to.
 
 ## How created beads look
 
