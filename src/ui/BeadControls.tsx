@@ -175,14 +175,12 @@ export function ComboSelect({
   options,
   onChange,
   disabled,
-  placeholder,
   style,
 }: {
   value: string
   options: ComboOption[]
   onChange(v: string): void
   disabled?: boolean
-  placeholder?: string
   style?: React.CSSProperties
 }) {
   const portalContainer = useWidgetPortalContainer()
@@ -202,13 +200,12 @@ export function ComboSelect({
       onOpenChange={setOpen}
       disabled={disabled}
     >
-      <div ref={anchorRef}>
+      <div ref={anchorRef} style={{ width: '100%', ...style }}>
         <Combobox.Trigger
           onClick={(e) => e.stopPropagation()}
           onKeyDown={(e) => e.stopPropagation()}
-          style={{ width: '100%' }}
         >
-          <Combobox.Input placeholder={placeholder} style={style} />
+          <Combobox.Input />
         </Combobox.Trigger>
       </div>
 
@@ -269,7 +266,6 @@ export function PrioritySelect({
       options={options}
       onChange={onChange}
       disabled={disabled}
-      placeholder="P2"
       style={{
         fontSize: 11,
         padding: '2px 6px',

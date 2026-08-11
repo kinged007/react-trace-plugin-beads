@@ -114,7 +114,6 @@ export function BeadsSettings() {
           value={settings.status}
           options={statusOptions}
           onChange={(v) => setSettings({ status: v })}
-          placeholder="open"
           style={{
             background: '#0f0f11',
             border: '1px solid #27272a',
@@ -140,7 +139,6 @@ export function BeadsSettings() {
           value={settings.priority}
           options={priorityOptions}
           onChange={(v) => setSettings({ priority: v })}
-          placeholder="P2"
           style={{
             background: '#0f0f11',
             border: '1px solid #27272a',
@@ -161,7 +159,6 @@ export function BeadsSettings() {
           value={settings.epic}
           options={epicOptions}
           onChange={(v) => setSettings({ epic: v })}
-          placeholder="None"
           style={{
             background: '#0f0f11',
             border: '1px solid #27272a',
