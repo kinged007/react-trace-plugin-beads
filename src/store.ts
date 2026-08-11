@@ -53,17 +53,19 @@ export function useSetBeadsSettings(): (patch: Partial<BeadsSettings>) => void {
 // ---------------------------------------------------------------------------
 
 let bridgeUrl = DEFAULT_BRIDGE_URL
+let bridgeToken: string | undefined
 let client: BridgeClient | null = null
 
-export function setBridgeUrl(url?: string): void {
+export function setBridgeUrl(url?: string, token?: string): void {
   if (url) {
     bridgeUrl = url
+    bridgeToken = token
     client = null
   }
 }
 
 export function getBridgeClient(): BridgeClient {
-  if (!client) client = createBridgeClient(bridgeUrl)
+  if (!client) client = createBridgeClient(bridgeUrl, bridgeToken)
   return client
 }
 

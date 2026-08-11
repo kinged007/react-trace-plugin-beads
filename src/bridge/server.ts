@@ -13,6 +13,7 @@ interface Options {
   port: number
   directory: string
   bd: string
+  token: string
 }
 
 function parseArgs(argv: string[]): Options {
@@ -21,6 +22,7 @@ function parseArgs(argv: string[]): Options {
     port: Number(process.env.BEADS_BRIDGE_PORT ?? 4790),
     directory: process.cwd(),
     bd: 'bd',
+    token: process.env.BEADS_BRIDGE_TOKEN ?? '',
   }
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i]
@@ -29,6 +31,7 @@ function parseArgs(argv: string[]): Options {
     else if (arg === '--host' && next) opts.host = next
     else if (arg === '--directory' && next) opts.directory = resolve(next)
     else if (arg === '--bd' && next) opts.bd = next
+    else if (arg === '--token' && next) opts.token = next
     else if (arg === '--help' || arg === '-h') {
       console.log(`react-trace-beads - local bridge between the react-trace beads plugin and the bd CLI
 
@@ -40,6 +43,8 @@ Flags:
   --port <port>        Listen port (default 4790, env BEADS_BRIDGE_PORT)
   --directory <dir>    Project directory bd runs in (default: current dir; each request may override)
   --bd <path>          Path to the bd binary (default: "bd")
+  --token <secret>     Require Authorization: Bearer <secret> on all API routes (env BEADS_BRIDGE_TOKEN).
+                       Recommended when binding to 0.0.0.0 or exposing the port publicly.
   -h, --help           Show this help
 
 Requires the bd CLI (beads) to be installed and the target repo to have a .beads database.`)
@@ -181,6 +186,13 @@ async function handleDelete(opts: Options, id: string, directory: string): Promi
 // HTTP plumbing
 // ---------------------------------------------------------------------------
 
+function authorized(req: IncomingMessage, opts: Options): boolean {
+  if (!opts.token) return true
+  const header = req.headers.authorization ?? ''
+  const url = new URL(req.url ?? '/', 'http://localhost')
+  return header === `Bearer ${opts.token}` || url.searchParams.get('token') === opts.token
+}
+
 function sendJson(res: ServerResponse, status: number, payload: unknown): void {
   res.writeHead(status, {
     'Content-Type': 'application/json; charset=utf-8',
@@ -220,6 +232,11 @@ async function route(req: IncomingMessage, res: ServerResponse, opts: Options): 
 
   if (method === 'OPTIONS') {
     sendJson(res, 204, {})
+    return
+  }
+
+  if (!authorized(req, opts)) {
+    sendJson(res, 401, { error: 'unauthorized: set BEADS_BRIDGE_TOKEN / --token on the bridge and pass bridgeToken to BeadsPlugin' })
     return
   }
 

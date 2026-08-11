@@ -129,7 +129,7 @@ function BeadsActionPanelWithContext() {
  * <Trace root={import.meta.env.VITE_ROOT} plugins={[BeadsPlugin()]} />
  */
 export function BeadsPlugin(options?: BeadsPluginOptions): TracePlugin {
-  setBridgeUrl(resolveBridgeUrl(options?.bridgeUrl))
+  setBridgeUrl(resolveBridgeUrl(options?.bridgeUrl), options?.bridgeToken)
   return {
     name: 'beads',
     toolbar: BeadsToolbar,

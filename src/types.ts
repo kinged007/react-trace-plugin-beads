@@ -12,8 +12,10 @@ export interface BeadsSettings {
 }
 
 export interface BeadsPluginOptions {
-  /** Base URL of the local bd bridge server. Default: http://localhost:4790 */
+  /** Bridge base URL. Absolute (http://host:port) or same-origin path (e.g. "/beads-api"). Default: auto-derived. */
   bridgeUrl?: string
+  /** Bearer token for the bridge when it runs with --token / BEADS_BRIDGE_TOKEN. */
+  bridgeToken?: string
 }
 
 export interface BeadStatusOption {

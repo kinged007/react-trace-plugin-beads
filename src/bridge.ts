@@ -56,43 +56,45 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
   return body as T
 }
 
-export function createBridgeClient(baseUrl: string): BridgeClient {
+export function createBridgeClient(baseUrl: string, token?: string): BridgeClient {
   const api = `${baseUrl.replace(/\/$/, '')}/api`
+  const headers = token ? { Authorization: `Bearer ${token}` } : undefined
 
   return {
     baseUrl,
     async health() {
       try {
-        return await request<{ ok: boolean; bd?: string; directory?: string }>(`${api}/health`)
+        return await request<{ ok: boolean; bd?: string; directory?: string }>(`${api}/health`, { headers })
       } catch (e) {
         return { ok: false, error: e instanceof Error ? e.message : 'unreachable' }
       }
     },
     options(directory) {
       const qs = directory ? `?directory=${encodeURIComponent(directory)}` : ''
-      return request<BeadOptions>(`${api}/options${qs}`)
+      return request<BeadOptions>(`${api}/options${qs}`, { headers })
     },
     create(input) {
       return request<BeadIssue>(`${api}/issues`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...headers },
         body: JSON.stringify(input),
       })
     },
     update(id, patch) {
       return request<BeadIssue>(`${api}/issues/${encodeURIComponent(id)}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...headers },
         body: JSON.stringify(patch),
       })
     },
     async findByMarker(marker, directory) {
       const qs = directory ? `&directory=${encodeURIComponent(directory)}` : ''
-      return request<BeadIssue | null>(`${api}/issues?marker=${encodeURIComponent(marker)}${qs}`)
+      return request<BeadIssue | null>(`${api}/issues?marker=${encodeURIComponent(marker)}${qs}`, { headers })
     },
     async remove(id) {
       await request<{ deleted: string }>(`${api}/issues/${encodeURIComponent(id)}`, {
         method: 'DELETE',
+        headers,
       })
     },
   }
