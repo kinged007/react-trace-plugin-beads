@@ -5,10 +5,8 @@ import {
   useSelectedSource,
 } from '@react-trace/core'
 import { ChatBubbleIcon, DropdownMenu } from '@react-trace/ui-components'
-import { useState } from 'react'
 
-import { getBridgeClient, useBeadsSettings, useCommentsActions } from '../store'
-import type { CreateBeadInput } from '../types'
+import { useCommentsActions, useSetPendingBead } from '../store'
 
 export function BeadIcon({ size = 12 }: { size?: number }) {
   return (
@@ -21,35 +19,13 @@ export function BeadIcon({ size = 12 }: { size?: number }) {
   )
 }
 
-type CreateState = 'idle' | 'creating' | 'created' | 'error'
-
-function safeJson(value: unknown): string {
-  const seen = new WeakSet<object>()
-  try {
-    return (
-      JSON.stringify(value, (_key, v) => {
-        if (typeof v === 'object' && v !== null) {
-          if (seen.has(v)) return '[Circular]'
-          seen.add(v)
-        }
-        return v
-      }) ?? ''
-    )
-  } catch {
-    return ''
-  }
-}
-
 export function BeadsActionPanel() {
   const selectedContext = useSelectedContext()
   const selectedSource = useSelectedSource()
-  const settings = useBeadsSettings()
   const { setPending } = useCommentsActions()
+  const setPendingBead = useSetPendingBead()
   const clearSelectedContext = useClearSelectedContext()
   const deactivateInspector = useDeactivateInspector()
-
-  const [createState, setCreateState] = useState<CreateState>('idle')
-  const [createdId, setCreatedId] = useState('')
 
   if (!selectedContext || !selectedSource) return null
 
@@ -63,42 +39,20 @@ export function BeadsActionPanel() {
     deactivateInspector()
   }
 
-  const handleCreateBead = async () => {
-    const source = selectedSource
-    if (!source) return
-    setCreateState('creating')
-
-    const displayName = selectedContext?.displayName ?? source.fileName
+  const handleCreateBead = () => {
+    const displayName = selectedContext?.displayName ?? selectedSource.fileName
     const breadcrumb = (selectedContext?.breadcrumb ?? []).join(' > ')
-    const propsPreview = safeJson(selectedContext?.props ?? {}).slice(0, 2000)
-
-    const input: CreateBeadInput = {
-      title: source.fileName.split('/').pop() ?? source.fileName,
-      description: [
-        `Component: ${displayName}`,
-        breadcrumb ? `Breadcrumb: ${breadcrumb}` : '',
-        propsPreview && propsPreview !== '{}' ? `Props: ${propsPreview}` : '',
-        '',
-        '---',
-        'Source: react-trace component',
-        `Path: ${source.relativePath}:${source.lineNumber}`,
-        `Absolute: ${source.absolutePath}`,
-      ]
-        .filter(Boolean)
-        .join('\n'),
-      priority: settings.priority,
-      labels: settings.labels.split(',').map((l) => l.trim()).filter(Boolean),
-      status: settings.status,
-      epic: settings.epic,
-    }
-
-    try {
-      const issue = await getBridgeClient().create(input)
-      setCreatedId(issue.id)
-      setCreateState('created')
-    } catch {
-      setCreateState('error')
-    }
+    setPendingBead({
+      title: selectedSource.fileName.split('/').pop() ?? selectedSource.fileName,
+      filePath: selectedSource.relativePath,
+      lineNumber: selectedSource.lineNumber,
+      displayName,
+      breadcrumb,
+      absolutePath: selectedSource.absolutePath,
+      anchorEl: selectedContext.element,
+    })
+    clearSelectedContext()
+    deactivateInspector()
   }
 
   return (
@@ -109,25 +63,11 @@ export function BeadsActionPanel() {
         </span>
         Add comment
       </DropdownMenu.Item>
-      <DropdownMenu.Item
-        closeOnClick={createState !== 'creating'}
-        onClick={() => {
-          if (createState === 'idle' || createState === 'error') void handleCreateBead()
-        }}
-        style={{
-          color: createState === 'error' ? '#f87171' : createState === 'created' ? '#4ade80' : undefined,
-        }}
-      >
+      <DropdownMenu.Item closeOnClick onClick={handleCreateBead}>
         <span style={{ display: 'flex', alignItems: 'center' }}>
           <BeadIcon />
         </span>
-        {createState === 'creating'
-          ? 'Creating bead…'
-          : createState === 'created'
-            ? `Bead created: ${createdId}`
-            : createState === 'error'
-              ? 'Failed — try again'
-              : 'Create bead'}
+        Create bead
       </DropdownMenu.Item>
     </>
   )

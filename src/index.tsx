@@ -7,6 +7,7 @@ import { setBridgeUrl, useCommentBeadState, useCommentEntries } from './store'
 import { resolveBridgeUrl } from './bridge'
 import type { BeadsPluginOptions } from './types'
 import { BeadsActionPanel } from './ui/ActionPanel'
+import { BeadEditorOverlay } from './ui/BeadEditor'
 import { CommentEditorOverlay } from './ui/CommentEditor'
 import { CommentsMenu } from './ui/CommentsMenu'
 import { BeadsSettings } from './ui/Settings'
@@ -108,6 +109,7 @@ function BeadsToolbar() {
       </DropdownMenu.Root>
 
       <CommentEditorOverlay />
+      <BeadEditorOverlay />
     </>
   )
 }

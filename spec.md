@@ -2,7 +2,7 @@
 title: 'react-trace beads plugin (comments + components -> bd issues)'
 type: 'feature'
 created: '2026-08-11'
-status: 'in-progress'
+status: 'in-review'
 context: []
 ---
 
@@ -58,14 +58,14 @@ context: []
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `~/react-trace-plugin-beads/` scaffold package (package.json, tsconfig, tsdown, plugin template structure) -- buildable, typecheckable package
-- [ ] `src/bridge/server.ts` + bin -- bridge: health, options (bd statuses/label list-all/list --type epic), create (bd create + metadata + parent + set-state when status != open), find-by-marker (bd list --metadata-field), delete (bd delete --force); CORS; directory per request
-- [ ] `src/bridge.ts` -- typed client + options cache + health polling
-- [ ] `src/store.ts` -- settings atom (augmented TraceSettings) + comment store with bead sync lifecycle (create/delete/toggle, priority/labels edits)
-- [ ] `src/ui/*` -- comments menu w/ per-comment checkmark + priority/labels dropdowns, editor overlay w/ bead defaults, action panel Create bead, settings tab w/ CLI-fetched options
-- [ ] `src/index.tsx` + `index.prod.ts` -- plugin factory, toolbar badge w/ bridge status, prod stubs
-- [ ] Build, typecheck, lint; manual test of bridge endpoints against myxon's beads DB
-- [ ] Wire into `frontend/src/main.tsx` (swap comments plugin) + `frontend/package.json` (file: dep, `beads` script) -- dev server runs with plugin; end-to-end test in browser (chrome-devtools MCP)
+- [x] `~/react-trace-plugin-beads/` scaffold package (package.json, tsconfig, tsdown, plugin template structure) -- buildable, typecheckable package
+- [x] `src/bridge/server.ts` + bin -- bridge: health, options (bd statuses/label list-all/list --type epic), create (bd create + metadata + parent + set-state when status != open), find-by-marker (bd list --metadata-field), delete (bd delete --force); CORS; directory per request
+- [x] `src/bridge.ts` -- typed client + options cache + health polling
+- [x] `src/store.ts` -- settings atom (augmented TraceSettings) + comment store with bead sync lifecycle (create/delete/toggle, priority/labels edits)
+- [x] `src/ui/*` -- comments menu w/ per-comment checkmark + priority/labels dropdowns, editor overlay w/ bead defaults, action panel Create bead, settings tab w/ CLI-fetched options
+- [x] `src/index.tsx` + `index.prod.ts` -- plugin factory, toolbar badge w/ bridge status, prod stubs
+- [x] Build, typecheck, lint; manual test of bridge endpoints against myxon's beads DB
+- [x] Wire into `frontend/src/main.tsx` (swap comments plugin) + `frontend/package.json` (file: dep, `beads` script) -- dev server runs with plugin; end-to-end test in browser (chrome-devtools MCP)
 
 **Acceptance Criteria:**
 - Given bridge running and a comment created with bead checked, when the comment saves, then a bd issue exists with filename title, comment+path description, and marker; unchecking it deletes that exact issue.

@@ -177,6 +177,18 @@ export interface PendingComment {
 
 const pendingCommentAtom = atom<PendingComment | null>(null)
 
+export interface PendingBead {
+  title: string
+  filePath: string
+  lineNumber: number
+  displayName: string
+  breadcrumb: string
+  absolutePath: string
+  anchorEl: HTMLElement
+}
+
+const pendingBeadAtom = atom<PendingBead | null>(null)
+
 export function useCommentEntries(): CommentEntry[] {
   return useAtomValue(commentsAtom)
 }
@@ -187,6 +199,15 @@ export function useCommentBeadState(): Record<string, CommentBeadState> {
 
 export function usePendingComment(): PendingComment | null {
   return useAtomValue(pendingCommentAtom)
+}
+
+export function usePendingBead(): PendingBead | null {
+  return useAtomValue(pendingBeadAtom)
+}
+
+export function useSetPendingBead(): (value: PendingBead | null) => void {
+  const [, setPendingBead] = useAtom(pendingBeadAtom)
+  return setPendingBead
 }
 
 export function useCommentsActions() {
