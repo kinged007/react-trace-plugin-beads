@@ -161,8 +161,9 @@ export function LabelPicker({
 
 export interface ComboOption {
   value: string
-  label: ReactNode
+  label: string
   searchLabel?: string
+  hint?: string
 }
 
 /**
@@ -187,7 +188,12 @@ export function ComboSelect({
   const anchorRef = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
   const current = options.find((o) => o.value === value) ?? null
-  const items = options.map((o) => ({ value: o.value, label: o.label, searchLabel: o.searchLabel ?? '' }))
+  const items = options.map((o) => ({
+    value: o.value,
+    label: o.label,
+    searchLabel: o.searchLabel ?? '',
+    hint: o.hint ?? '',
+  }))
 
   return (
     <Combobox.Root
@@ -229,7 +235,12 @@ export function ComboSelect({
                   value={option}
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <span>{option.label}</span>
+                  <span style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    <span>{option.label}</span>
+                    {option.hint && (
+                      <span style={{ fontSize: 10, color: '#71717a' }}>{option.hint}</span>
+                    )}
+                  </span>
                 </Combobox.Item>
               )}
             </Combobox.List>

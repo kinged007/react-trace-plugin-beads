@@ -23,12 +23,9 @@ const LABEL_STYLE: React.CSSProperties = {
 function statusOption(s: BeadStatusOption): ComboOption {
   return {
     value: s.name,
-    label: (
-      <span title={s.description}>
-        {s.icon} {s.name}
-      </span>
-    ),
+    label: `${s.icon} ${s.name}`,
     searchLabel: `${s.name} ${s.description ?? ''}`,
+    hint: s.description,
   }
 }
 
