@@ -75,7 +75,7 @@ export function useBeadOptions(): {
   error: string | null
   refresh(): void
 } {
-  const root = useProjectRoot()
+  const root = useProjectRoot() ?? ''
   const [options, setOptions] = useAtom(beadOptionsAtom)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -108,7 +108,7 @@ export function useBridgeHealth(): {
   ok: boolean | null
   detail: string
 } {
-  const root = useProjectRoot()
+  const root = useProjectRoot() ?? ''
   const [state, setState] = useState<{ ok: boolean | null; detail: string }>({
     ok: null,
     detail: '',
@@ -192,7 +192,7 @@ export function useCommentsActions() {
   const [beadState, setBeadState] = useAtom(beadStateAtom)
   const [, setPending] = useAtom(pendingCommentAtom)
   const settings = useBeadsSettings()
-  const root = useProjectRoot()
+  const root = useProjectRoot() ?? ''
 
   const setSync = useCallback(
     (id: string, patch: Partial<BeadSync>) => {
@@ -224,6 +224,7 @@ export function useCommentsActions() {
   const createBead = useCallback(
     async (comment: CommentEntry, state: CommentBeadState) => {
       const marker = state.sync.marker
+      const absBase = comment.root ? comment.root.replace(/\/$/, '') : ''
       const input: CreateBeadInput = {
         title: `${comment.filePath.split('/').pop() ?? comment.filePath}:${comment.lineNumber}`,
         description: [
@@ -232,7 +233,7 @@ export function useCommentsActions() {
           '---',
           'Source: react-trace comment',
           `Path: ${comment.filePath}:${comment.lineNumber}`,
-          `Absolute: ${comment.root.replace(/\/$/, '')}/${comment.filePath}`,
+          `Absolute: ${absBase ? `${absBase}/${comment.filePath}` : comment.filePath}`,
           `Marker: ${marker}`,
         ].join('\n'),
         priority: state.priority,
