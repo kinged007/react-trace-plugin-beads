@@ -1,0 +1,59 @@
+{
+  "name": "react-trace-plugin-beads",
+  "version": "0.0.1",
+  "description": "react-trace plugin that creates beads (bd CLI) issues from comments and component inspections",
+  "license": "MIT",
+  "keywords": ["react-trace", "react-trace-plugin", "beads", "bd"],
+  "files": ["dist", "dist-bridge"],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "react-trace-beads": "./dist-bridge/server.js"
+  },
+  "exports": {
+    ".": {
+      "development": {
+        "import": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+        "require": { "types": "./dist/index.d.cts", "default": "./dist/index.cjs" }
+      },
+      "production": {
+        "import": { "types": "./dist/index.d.ts", "default": "./dist/index.prod.js" },
+        "require": { "types": "./dist/index.d.cts", "default": "./dist/index.prod.cjs" }
+      },
+      "default": {
+        "import": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+        "require": { "types": "./dist/index.d.cts", "default": "./dist/index.cjs" }
+      }
+    }
+  },
+  "scripts": {
+    "build": "pnpm build:bridge && tsdown",
+    "build:bridge": "tsc -p tsconfig.bridge.json",
+    "dev": "tsdown --watch --no-clean",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.bridge.json --noEmit",
+    "lint": "oxlint src",
+    "fmt": "oxfmt .",
+    "fmt:check": "oxfmt --check .",
+    "prepublishOnly": "pnpm build"
+  },
+  "devDependencies": {
+    "@react-trace/core": "latest",
+    "@react-trace/ui-components": "latest",
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "jotai": "^2.18.0",
+    "oxfmt": "latest",
+    "oxlint": "latest",
+    "react": "^19",
+    "tsdown": "^0.21.0-beta.2",
+    "typescript": "^5"
+  },
+  "peerDependencies": {
+    "@react-trace/core": "*",
+    "@react-trace/ui-components": "*",
+    "jotai": "^2.18.0",
+    "react": ">=18"
+  }
+}

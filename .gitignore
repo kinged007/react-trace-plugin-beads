@@ -1,0 +1,5 @@
+node_modules
+dist
+dist-bridge
+*.tgz
+.DS_Store
