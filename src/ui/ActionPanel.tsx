@@ -23,6 +23,23 @@ export function BeadIcon({ size = 12 }: { size?: number }) {
 
 type CreateState = 'idle' | 'creating' | 'created' | 'error'
 
+function safeJson(value: unknown): string {
+  const seen = new WeakSet<object>()
+  try {
+    return (
+      JSON.stringify(value, (_key, v) => {
+        if (typeof v === 'object' && v !== null) {
+          if (seen.has(v)) return '[Circular]'
+          seen.add(v)
+        }
+        return v
+      }) ?? ''
+    )
+  } catch {
+    return ''
+  }
+}
+
 export function BeadsActionPanel() {
   const selectedContext = useSelectedContext()
   const selectedSource = useSelectedSource()
@@ -53,7 +70,7 @@ export function BeadsActionPanel() {
 
     const displayName = selectedContext?.displayName ?? source.fileName
     const breadcrumb = (selectedContext?.breadcrumb ?? []).join(' > ')
-    const propsPreview = JSON.stringify(selectedContext?.props ?? {}).slice(0, 2000)
+    const propsPreview = safeJson(selectedContext?.props ?? {}).slice(0, 2000)
 
     const input: CreateBeadInput = {
       title: source.fileName.split('/').pop() ?? source.fileName,
