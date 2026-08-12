@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "react_trace_plugin_beads",
+  "project_id": "5bc1c4d1-077c-4d16-ac4e-6282933cdbc3"
+}
