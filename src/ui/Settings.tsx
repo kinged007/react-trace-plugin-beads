@@ -20,6 +20,8 @@ const LABEL_STYLE: React.CSSProperties = {
   marginBottom: 4,
 }
 
+const NO_EPIC_VALUE = '__none__'
+
 function statusOption(s: BeadStatusOption): ComboOption {
   return {
     value: s.name,
@@ -53,7 +55,7 @@ export function BeadsSettings() {
     searchLabel: p,
   }))
   const epicOptions: ComboOption[] = [
-    { value: '', label: 'None' },
+    { value: NO_EPIC_VALUE, label: 'None' },
     ...epics.map((e) => ({ value: e.id, label: `${e.id} — ${e.title}`, searchLabel: `${e.id} ${e.title}` })),
   ]
 
@@ -139,9 +141,9 @@ export function BeadsSettings() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         <label style={LABEL_STYLE}>Epic (parent bead)</label>
         <ComboSelect
-          value={settings.epic}
+          value={settings.epic || NO_EPIC_VALUE}
           options={epicOptions}
-          onChange={(v) => setSettings({ epic: v })}
+          onChange={(v) => setSettings({ epic: v === NO_EPIC_VALUE ? '' : v })}
           style={{ fontSize: 12 }}
         />
       </div>

@@ -53,7 +53,7 @@ context: []
 - `~/react-trace-plugin-beads/src/bridge/server.ts` -- zero-dep Node http server proxying to `bd` (health/options/issues CRUD), bin `react-trace-beads`
 - `~/react-trace-plugin-beads/src/ui/CommentsMenu.tsx`, `CommentEditor.tsx`, `ActionPanel.tsx`, `Settings.tsx`, `BeadControls.tsx` -- components
 - `~/react-trace-plugin-beads/src/index.prod.ts` -- production stubs
-- `frontend/src/main.tsx` (myxon) -- swap CommentsPlugin for BeadsPlugin for testing; `frontend/package.json` -- `file:` devDep + `beads` npm script running the bridge from repo root
+- `<host-app>/frontend/src/main.tsx` -- swap CommentsPlugin for BeadsPlugin for testing; `frontend/package.json` -- `file:` devDep + `beads` npm script running the bridge from repo root
 
 ## Tasks & Acceptance
 
@@ -64,7 +64,7 @@ context: []
 - [x] `src/store.ts` -- settings atom (augmented TraceSettings) + comment store with bead sync lifecycle (create/delete/toggle, priority/labels edits)
 - [x] `src/ui/*` -- comments menu w/ per-comment checkmark + priority/labels dropdowns, editor overlay w/ bead defaults, action panel Create bead, settings tab w/ CLI-fetched options
 - [x] `src/index.tsx` + `index.prod.ts` -- plugin factory, toolbar badge w/ bridge status, prod stubs
-- [x] Build, typecheck, lint; manual test of bridge endpoints against myxon's beads DB
+- [x] Build, typecheck, lint; manual test of bridge endpoints against the host app's beads DB
 - [x] Wire into `frontend/src/main.tsx` (swap comments plugin) + `frontend/package.json` (file: dep, `beads` script) -- dev server runs with plugin; end-to-end test in browser (chrome-devtools MCP)
 
 **Acceptance Criteria:**
@@ -91,7 +91,7 @@ Looks like this breaks on Safari.
 
 Source: react-trace comment
 Path: src/components/Button.tsx:42
-Absolute: /home/coder/myxon/frontend/src/components/Button.tsx
+Absolute: <project-root>/frontend/src/components/Button.tsx
 Marker: rtc-3f2a9c
 ```
 
@@ -99,5 +99,5 @@ Marker: rtc-3f2a9c
 
 **Commands:**
 - `pnpm install && pnpm typecheck && pnpm lint && pnpm build` (in `~/react-trace-plugin-beads`) -- expected: clean
-- `react-trace-beads --port 4790 --directory /home/coder/myxon` then `curl localhost:4790/api/health`, `curl localhost:4790/api/options` -- expected: ok:true, options JSON; manual create/find/delete round-trip against myxon beads DB, then delete the test issue
+- `react-trace-beads --port 4790 --directory <project-root>` then `curl localhost:4790/api/health`, `curl localhost:4790/api/options` -- expected: ok:true, options JSON; manual create/find/delete round-trip against the host app's beads DB, then delete the test issue
 - `cd frontend && npm run dev` -- expected: widget loads with Beads button; browser E2E via chrome-devtools MCP: add comment -> bead created (verify via `bd list`), uncheck -> bead deleted, component "Create bead" works, settings dropdowns populated
