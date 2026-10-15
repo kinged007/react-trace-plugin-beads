@@ -47,6 +47,32 @@ cp -rf source dest          # NOT: cp -r source dest
 - `apt-get` - use `-y` flag
 - `brew` - use `HOMEBREW_NO_AUTO_UPDATE=1` env var
 
+## Project Overview
+
+`react-trace-plugin-beads` — a [react-trace](https://react-trace.js.org) plugin that turns comments and component inspections into [beads](https://github.com/gastownhall/beads) issues via the `bd` CLI. Includes a zero-dep Node bridge (`react-trace-beads` bin on `localhost:4790` by default) that proxies fixed `bd` subcommands.
+
+## How to run checks
+
+```bash
+npm install
+npm run check      # typecheck + lint (what CI runs)
+npm run typecheck
+npm run lint       # oxlint src
+npm run build      # tsdown + bridge
+```
+
+CI (`.github/workflows/ci.yml`) runs `npm ci && npm run check && npm run build` on push/PR to `main`.
+
+## Branch / PR workflow
+
+- Do not push directly to `main`. Create a branch and open a PR.
+- CI must be green before merge.
+
+## Permissions
+
+- Do not commit secrets (`.env`, tokens). Only `.env.example` belongs in the repo.
+- Keep credentials out of commits; use environment variables at runtime.
+
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:6cd5cc61 -->
 ## Beads Issue Tracker
 

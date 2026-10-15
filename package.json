@@ -29,14 +29,15 @@
     }
   },
   "scripts": {
-    "build": "pnpm build:bridge && tsdown",
+    "build": "npm run build:bridge && tsdown",
     "build:bridge": "tsc -p tsconfig.bridge.json",
     "dev": "tsdown --watch --no-clean",
     "typecheck": "tsc --noEmit && tsc -p tsconfig.bridge.json --noEmit",
     "lint": "oxlint src",
     "fmt": "oxfmt .",
     "fmt:check": "oxfmt --check .",
-    "prepublishOnly": "pnpm build"
+    "check": "npm run typecheck && npm run lint",
+    "prepublishOnly": "npm run build"
   },
   "devDependencies": {
     "@react-trace/core": "latest",
