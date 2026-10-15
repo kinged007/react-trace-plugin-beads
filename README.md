@@ -9,9 +9,6 @@ A [react-trace](https://react-trace.js.org) plugin that turns comments and compo
 - **Components** — inspect an element and use **Create bead** in the action panel to file a bead with the component info and source path.
 - **Settings** — `auto-add-bead`, default labels, and default status / priority / epic. Status, epic, and label options are fetched live from the bd CLI.
 
-![Demo](./docs/screenshot.png)
-_Screenshot: BeadsPlugin toolbar and comments overlay with per-comment bead controls. Replace `docs/screenshot.png` with an actual capture (`400-800px` wide) after recording._
-
 ## Install
 
 ```bash
