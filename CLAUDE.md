@@ -60,18 +60,42 @@ This protocol applies when ending a Beads implementation workflow. It is subordi
 
 ## Build & Test
 
-_Add your build and test commands here_
-
 ```bash
-# Example:
-# npm install
-# npm test
+npm install
+npm run check      # typecheck (tsc + tsconfig.bridge.json) + lint (oxlint)
+npm run build      # plugin -> dist/ (tsdown) + bridge -> dist-bridge/
+npm run typecheck  # tsc --noEmit + bridge tsconfig
+npm run lint       # oxlint src
 ```
+
+CI runs `npm ci && npm run check && npm run build` on push/PR to `main` (`.github/workflows/ci.yml`).
 
 ## Architecture Overview
 
-_Add a brief overview of your project architecture_
+- `src/index.tsx` — `BeadsPlugin()` TracePlugin: toolbar, action panel (Create bead), settings tab.
+- `src/store.ts` — settings atom (`settingsPluginAtom('beads')`) + comment store with bead sync lifecycle (marker uuid, beadId, sync status).
+- `src/bridge.ts` — typed HTTP client against `http://localhost:4790` (health, options, create, find-by-marker, delete).
+- `src/bridge/server.ts` — zero-dep Node `http` bridge (`react-trace-beads` bin) proxying to `bd` CLI (health/options/issues CRUD), CORS, directory per request.
+- `src/ui/*` — CommentsMenu, CommentEditor, ActionPanel, Settings, BeadControls.
+- `src/index.prod.ts` — production stubs.
+
+## Branch / PR workflow
+
+- Do not push directly to `main`. Create a feature branch and open a PR (`gh pr create`).
+- CI must pass (`npm run check` + build) before merge.
+- Keep commits attributed to `kinged007 <599286+kinged007@users.noreply.github.com>`.
+
+## Skills
+
+If `.agents/skills/` is present, use the relevant skill for the task (e.g., beads, dispatch). Run `bd prime` for beads workflow context.
+
+## Permissions
+
+- Do not publish anything derived from the private `tenantflex` org repos without written org-owner approval (see workspace `docs/03-tenantflex.md` — not part of this repo).
+- Do not commit secrets (`.env`, tokens). Bridge tokens are passed via `BEADS_BRIDGE_TOKEN` / `--token` at runtime only.
 
 ## Conventions & Patterns
 
-_Add your project-specific conventions here_
+- Bridge is zero-dep Node `http`; all `bd` interaction goes through it (no browser CLI).
+- Formatting via `oxfmt`, linting via `oxlint`; run `npm run fmt` to format.
+- Plugin uses `useSelectedContext`/`useSelectedSource`, `useWidgetPortalContainer` portals, inline styles, following `@react-trace/plugin-comments` patterns.

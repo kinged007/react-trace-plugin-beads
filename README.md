@@ -1,31 +1,32 @@
 # react-trace-plugin-beads
 
-A [react-trace](https://react-trace.js.org) plugin that turns comments and
-component inspections into [beads](https://github.com/gastownhall/beads)
-issues via the `bd` CLI.
+[![CI](https://github.com/kinged007/react-trace-plugin-beads/actions/workflows/ci.yml/badge.svg)](https://github.com/kinged007/react-trace-plugin-beads/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/react-trace-plugin-beads?label=npm)](https://www.npmjs.com/package/react-trace-plugin-beads)
 
-- **Comments** — ships its own comments UI (menu + inline editor). Every
-  comment has a **bead checkbox** (on by default, controlled by the
-  `auto-add-bead` setting). Checking creates a bead; unchecking finds it by
-  its marker and hard-deletes it. Each comment also has priority and label
-  dropdowns on top of the settings defaults.
-- **Components** — inspect an element and use **Create bead** in the action
-  panel to file a bead with the component info and source path.
-- **Settings** — `auto-add-bead`, default labels, and default status /
-  priority / epic. Status, epic, and label options are fetched live from the
-  bd CLI.
+A [react-trace](https://react-trace.js.org) plugin that turns comments and component inspections into [beads](https://github.com/gastownhall/beads) issues via the `bd` CLI.
 
-## Why a bridge server?
+- **Comments** — ships its own comments UI (menu + inline editor). Every comment has a bead checkbox (on by default, controlled by the `auto-add-bead` setting). Checking creates a bead; unchecking finds it by its marker and hard-deletes it. Each comment also has priority and label dropdowns on top of the settings defaults.
+- **Components** — inspect an element and use **Create bead** in the action panel to file a bead with the component info and source path.
+- **Settings** — `auto-add-bead`, default labels, and default status / priority / epic. Status, epic, and label options are fetched live from the bd CLI.
 
-Plugins run in the browser and cannot execute CLI commands. This package
-ships a tiny zero-dependency bridge (`react-trace-beads`, Node `http`) that
-runs the `bd` commands for the plugin over HTTP on `localhost:4790`.
+![Demo](./docs/screenshot.png)
+_Screenshot: BeadsPlugin toolbar and comments overlay with per-comment bead controls. Replace `docs/screenshot.png` with an actual capture (`400-800px` wide) after recording._
+
+## Install
+
+```bash
+npm install react-trace-plugin-beads
+# or
+pnpm add react-trace-plugin-beads
+```
+
+Requires `react >= 18`, `@react-trace/core`, `@react-trace/ui-components`, and `jotai`.
 
 ## Usage
 
 ```tsx
 import { Trace } from '@react-trace/core'
-import { PreviewPlugin, OpenEditorPlugin, CopyToClipboardPlugin } from '@react-trace/kit' // optional
+import { PreviewPlugin, OpenEditorPlugin, CopyToClipboardPlugin } from '@react-trace/kit'
 import { BeadsPlugin } from 'react-trace-plugin-beads'
 
 export function AppWithTrace() {
@@ -41,13 +42,11 @@ export function AppWithTrace() {
 }
 ```
 
-Replace the official `CommentsPlugin` with `BeadsPlugin()` — the beads plugin
-provides the comments UI with bead controls.
+Replace the official `CommentsPlugin` with `BeadsPlugin()` — the beads plugin provides the comments UI with bead controls.
 
 ### 1. Start the bridge
 
 ```bash
-npm i -D react-trace-plugin-beads
 npx react-trace-beads --directory .        # port 4790, or BEADS_BRIDGE_PORT
 ```
 
@@ -84,7 +83,7 @@ BEADS_BRIDGE_TOKEN=$(openssl rand -hex 32) react-trace-beads --host 0.0.0.0
 # plugin: BeadsPlugin({ bridgeToken: '<same token>' })
 ```
 
-`/api/health` stays unauthenticated (safe); every other route returns 401 without a valid token. Requests to other origins are blocked by CORS. Only bind `0.0.0.0` if you really need to.
+`/api/health` stays unauthenticated (safe); every other route returns 401 without a valid token.
 
 ## How created beads look
 
@@ -106,6 +105,15 @@ Unchecking a comment's bead checkbox deletes that exact issue (`bd delete --forc
 | `GET /api/issues?marker=` | find bead by `rt_comment_id` marker |
 | `DELETE /api/issues/:id` | hard-delete bead |
 
+## How it is tested
+
+```bash
+npm run check   # typecheck (tsc + tsconfig.bridge.json) + lint (oxlint)
+npm run build   # plugin -> dist/ (tsdown) + bridge -> dist-bridge/
+```
+
+No unit test suite yet — verification is build/typecheck/lint via CI and manual end-to-end against a live beads DB (`npx react-trace-beads` + browser overlay). Contributions adding `vitest` coverage for `bridge.ts` and `store.ts` are welcome.
+
 ## Development
 
 ```bash
@@ -114,4 +122,9 @@ npm run build:bridge   # bridge server -> dist-bridge/
 npm run build          # plugin -> dist/ (tsdown)
 npm run typecheck
 npm run lint
+npm run check
 ```
+
+## License
+
+MIT — see [LICENSE](./LICENSE).
