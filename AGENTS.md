@@ -70,8 +70,8 @@ CI (`.github/workflows/ci.yml`) runs `npm ci && npm run check && npm run build` 
 
 ## Permissions
 
-- Do not publish anything derived from the private `tenantflex` org without written owner approval.
-- Do not commit secrets (`.env`, tokens).
+- Do not commit secrets (`.env`, tokens). Only `.env.example` belongs in the repo.
+- Keep credentials out of commits; use environment variables at runtime.
 
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:6cd5cc61 -->
 ## Beads Issue Tracker

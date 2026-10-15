@@ -91,8 +91,8 @@ If `.agents/skills/` is present, use the relevant skill for the task (e.g., bead
 
 ## Permissions
 
-- Do not publish anything derived from the private `tenantflex` org repos without written org-owner approval (see workspace `docs/03-tenantflex.md` — not part of this repo).
-- Do not commit secrets (`.env`, tokens). Bridge tokens are passed via `BEADS_BRIDGE_TOKEN` / `--token` at runtime only.
+- Do not commit secrets (`.env`, tokens). Only `.env.example` belongs in the repo. Bridge tokens are passed via `BEADS_BRIDGE_TOKEN` / `--token` at runtime only.
+- Keep credentials out of commits; use environment variables at runtime.
 
 ## Conventions & Patterns
 
